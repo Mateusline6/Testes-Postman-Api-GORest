@@ -1,0 +1,1217 @@
+{
+	"info": {
+		"_postman_id": "3b25caa9-8a3b-40b5-b425-26af2dcec848",
+		"name": "GO REST API",
+		"description": "### **Descrição do Funcionamento e Execução dos Testes**\n\nEste conjunto de testes foi desenvolvido para validar a funcionalidade de uma API que gerencia usuários, posts e comentários. Os testes estão organizados de maneira a garantir que todas as requisições sejam executadas na ordem correta, evitando falhas devido a dependências entre os endpoints.\n\n#### **Fluxo de Execução dos Testes**\n\nOs testes devem ser executados seguindo a ordem abaixo, pois cada etapa depende da anterior:\n\n1. **Criação de Usuário**\n    \n2. Um usuário é criado de maneira aleatória, e seu ID é armazenado em uma variável de ambiente (`idUsuario`).\n    \n3. Testes validam se os dados foram gerados corretamente (nome, e-mail, gênero e status).\n    \n4. **Criação de Post**\n    \n    - Um post é criado e associado ao usuário recém-criado (idUsuario).\n        \n    - O ID do post é salvo na variável de ambiente (idPost).\n        \n    - Testes validam se o título e o corpo do post foram gerados corretamente.\n        \n5. **Busca de Posts**\n    \n    - Testes para validar a busca de todos os posts.\n        \n    - Teste específico para validar a busca de um post pelo seu ID.\n        \n6. **Criação de Comentário**\n    \n    - Um comentário é criado e vinculado ao post criado anteriormente (`post_id`).\n        \n    - As informações geradas são armazenadas em variáveis de ambiente (`random_comment_id`, `random_body`, `random_email`, `random_name`).\n        \n    - Testes validam se os dados foram gerados corretamente.\n        \n7. **Busca de Comentários**\n    \n    - Testes validam a busca de todos os comentários.\n        \n    - Testes verificam a busca de um comentário específico pelo seu ID.\n        \n\n#### **Execução dos Testes**\n\n- Para rodar todos os testes corretamente, basta executar a **Collection Runner** no Postman, garantindo que as variáveis de ambiente estão sendo salvas corretamente.\n    \n- Os testes incluem validações para garantir que todos os valores aleatórios gerados são corretamente armazenados e utilizados nas requisições seguintes.\n    \n- Caso algum teste falhe, verifique se as variáveis de ambiente estão sendo corretamente atribuídas e reutilizadas.\n    \n\n#### **Objetivo dos Testes**\n\nOs testes garantem que:\n\n- Os endpoints da API estão funcionando conforme esperado.\n    \n- Os dados gerados aleatoriamente são válidos e coerentes.\n    \n- Todas as requisições são executadas na ordem correta, evitando erros de dependência entre endpoints.\n    \n- As respostas da API seguem o formato esperado, retornando os dados corretamente.\n    \n\nSeguindo esse fluxo, é possível validar todo o funcionamento da API e garantir que as operações.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14621251"
+	},
+	"item": [
+		{
+			"name": "USUARIOS",
+			"item": [
+				{
+					"name": "Criar usuarios",
+					"item": [
+						{
+							"name": "Criar usuario",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Função para gerar um nome aleatório\r",
+											"function getRandomName() {\r",
+											"    const names = [\"Alice\", \"Bob\", \"Carlos\", \"Diana\", \"Eve\", \"Frank\"];\r",
+											"    const surnames = [\"Silva\", \"Santos\", \"Oliveira\", \"Souza\", \"Pereira\"];\r",
+											"    return names[Math.floor(Math.random() * names.length)] + \" \" + surnames[Math.floor(Math.random() * names.length)];\r",
+											"}\r",
+											"\r",
+											"// Função para gerar um e-mail 100% único\r",
+											"function getUniqueEmail() {\r",
+											"    const domains = [\"gmail.com\", \"outlook.com\", \"yahoo.com\", \"hdd.com\"];\r",
+											"    const timestamp = Date.now(); // Adiciona o timestamp para evitar duplicatas\r",
+											"    return `user${timestamp}${Math.floor(Math.random() * 1000)}@${domains[Math.floor(Math.random() * domains.length)]}`;\r",
+											"}\r",
+											"\r",
+											"// Função para escolher aleatoriamente o gênero\r",
+											"function getRandomGender() {\r",
+											"    return Math.random() > 0.5 ? \"male\" : \"female\";\r",
+											"}\r",
+											"\r",
+											"// Definir os valores aleatórios\r",
+											"const randomName = getRandomName();\r",
+											"const uniqueEmail = getUniqueEmail();\r",
+											"const randomGender = getRandomGender();\r",
+											"const randomStatus = \"active\"; // Status fixo como \"active\"\r",
+											"\r",
+											"// **Salvar os valores nas variáveis da Collection**\r",
+											"pm.environment.set(\"random_name\", randomName);\r",
+											"pm.environment.set(\"random_email\", uniqueEmail);\r",
+											"pm.environment.set(\"random_gender\", randomGender);\r",
+											"pm.environment.set(\"random_status\", randomStatus);\r",
+											"pm.environment.set\r",
+											"\r",
+											"// **Exibir no console do Postman (opcional)**\r",
+											"console.log(\"Nome:\", randomName);\r",
+											"console.log(\"Email:\", uniqueEmail);\r",
+											"console.log(\"Gênero:\", randomGender);\r",
+											"console.log(\"Status:\", randomStatus);\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Converte a resposta para JSON\r",
+											"let response = pm.response.json();\r",
+											"\r",
+											"// Verifica se o ID existe na resposta antes de salvar\r",
+											"if (response.id) {\r",
+											"    pm.environment.set(\"idDelete\", response.id);\r",
+											"    pm.environment.set(\"idUpdate\", response.id);\r",
+											"    pm.environment.set(\"idUsuario\", response.id);\r",
+											"\r",
+											"    // Exibe no console para depuração\r",
+											"    console.log(\"ID capturado:\", response.id);\r",
+											"} else {\r",
+											"    console.log(\"ID não encontrado na resposta.\");\r",
+											"}\r",
+											"\r",
+											"// Verifica se a requisição foi bem-sucedida (código 201 - Created)\r",
+											"pm.test(\"Status Code é 201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"// Verifica se os campos esperados estão na resposta\r",
+											"pm.test(\"Resposta contém ID\", function () {\r",
+											"    pm.expect(response).to.have.property(\"id\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Nome está correto\", function () {\r",
+											"    pm.expect(response.name).to.eql(pm.environment.get(\"random_name\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"E-mail está correto\", function () {\r",
+											"    pm.expect(response.email).to.eql(pm.environment.get(\"random_email\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Gênero está correto\", function () {\r",
+											"    pm.expect(response.gender).to.eql(pm.environment.get(\"random_gender\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Status está correto\", function () {\r",
+											"    pm.expect(response.status).to.eql(pm.environment.get(\"random_status\"));\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer ACCESS-TOKEN"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{random_name}}\",\r\n    \"gender\": \"{{random_gender}}\",\r\n    \"email\": \"{{random_email}}\",\r\n    \"status\": \"{{random_status}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GlobalUrlUsers}}",
+									"host": [
+										"{{GlobalUrlUsers}}"
+									]
+								},
+								"description": "Generated from cURL: curl -i -H \"Accept:application/json\" -H \"Content-Type:application/json\" -H \"Authorization: Bearer ACCESS-TOKEN\" -XPOST \"https://gorest.co.in/public/v2/users\" -d '{\"name\":\"Tenali Ramakrishna\", \"gender\":\"male\", \"email\":\"tenali.ramakrishna@15ce.com\", \"status\":\"active\"}'"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Buscar usuario",
+					"item": [
+						{
+							"name": "Buscar usuario",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"\r",
+											"\r",
+											"// Converte a resposta para JSON\r",
+											"let response = pm.response.json();\r",
+											"\r",
+											"// Verifica se a requisição foi bem-sucedida (código 200 - OK)\r",
+											"pm.test(\"Status Code é 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// Verifica se o ID retornado é o mesmo que foi salvo\r",
+											"pm.test(\"ID retornado é o correto\", function () {\r",
+											"    pm.expect(response.id).to.eql(pm.environment.get(\"idUsuario\"));\r",
+											"     pm.expect(response.id).to.eql(pm.environment.get(\"idUpdate\"));\r",
+											"     pm.expect(response.id).to.eql(pm.environment.get(\"idDelete\"));\r",
+											"});\r",
+											"\r",
+											"// Verifica se os campos principais estão presentes\r",
+											"pm.test(\"Nome está presente\", function () {\r",
+											"    pm.expect(response).to.have.property(\"name\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"E-mail está presente\", function () {\r",
+											"    pm.expect(response).to.have.property(\"email\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Gênero está presente\", function () {\r",
+											"    pm.expect(response).to.have.property(\"gender\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Status está presente\", function () {\r",
+											"    pm.expect(response).to.have.property(\"status\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{GlobalUrlUsers}}/{{idUsuario}}",
+									"host": [
+										"{{GlobalUrlUsers}}"
+									],
+									"path": [
+										"{{idUsuario}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Alterar usuarios",
+					"item": [
+						{
+							"name": "Altera usuario",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Função para gerar um nome aleatório\r",
+											"function getRandomName() {\r",
+											"    const names = [\"Alice\", \"Bob\", \"Carlos\", \"Diana\", \"Eve\", \"Frank\"];\r",
+											"    const surnames = [\"Silva\", \"Santos\", \"Oliveira\", \"Souza\", \"Pereira\"];\r",
+											"    return names[Math.floor(Math.random() * names.length)] + \" \" + surnames[Math.floor(Math.random() * names.length)];\r",
+											"}\r",
+											"\r",
+											"// Função para gerar um e-mail 100% único\r",
+											"function getUniqueEmail() {\r",
+											"    const domains = [\"gmail.com\", \"outlook.com\", \"yahoo.com\", \"hdd.com\"];\r",
+											"    const timestamp = Date.now(); // Adiciona o timestamp para evitar duplicatas\r",
+											"    return `user${timestamp}${Math.floor(Math.random() * 1000)}@${domains[Math.floor(Math.random() * domains.length)]}`;\r",
+											"}\r",
+											"\r",
+											"\r",
+											"// Definir os valores aleatórios\r",
+											"const randomName = getRandomName();\r",
+											"const uniqueEmail = getUniqueEmail();\r",
+											"const randomStatus = \"active\"; // Status fixo como \"active\"\r",
+											"\r",
+											"// **Salvar os valores nas variáveis da Collection**\r",
+											"pm.environment.set(\"random_name\", randomName);\r",
+											"pm.environment.set(\"random_email\", uniqueEmail);\r",
+											"pm.environment.set(\"random_status\", randomStatus);\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Converte a resposta para JSON\r",
+											"let response = pm.response.json();\r",
+											"\r",
+											"// Verifica se o ID existe na resposta antes de salvar\r",
+											"if (response.id) {\r",
+											"    pm.environment.set(\"idDelete\", response.id);\r",
+											"    pm.environment.set(\"idUpdate\", response.id);\r",
+											"    pm.environment.set(\"idUsuario\", response.id);\r",
+											"\r",
+											"    // Exibe no console para depuração\r",
+											"    console.log(\"ID capturado:\", response.id);\r",
+											"} else {\r",
+											"    console.log(\"ID não encontrado na resposta.\");\r",
+											"}\r",
+											"\r",
+											"// Verifica se a requisição foi bem-sucedida (código 200 - OK)\r",
+											"pm.test(\"Status Code é 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// Verifica se os campos foram atualizados corretamente\r",
+											"pm.test(\"Nome foi atualizado\", function () {\r",
+											"    pm.expect(response.name).to.eql(pm.environment.get(\"random_name\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"E-mail foi atualizado\", function () {\r",
+											"    pm.expect(response.email).to.eql(pm.environment.get(\"random_email\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Status foi atualizado\", function () {\r",
+											"    pm.expect(response.status).to.eql(pm.environment.get(\"random_status\"));\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{random_name}}\",\r\n    \"email\": \"{{random_email}}\",\r\n    \"status\": \"{{random_status}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GlobalUrlUsers}}/{{idUpdate}}",
+									"host": [
+										"{{GlobalUrlUsers}}"
+									],
+									"path": [
+										"{{idUpdate}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Excluir usuarios",
+					"item": [
+						{
+							"name": "Deletar usuario",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status Code é 204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											"\r",
+											"// Testa se o corpo da resposta está vazio (conforme esperado para DELETE)\r",
+											"pm.test(\"Resposta está vazia\", function () {\r",
+											"    pm.expect(pm.response.text()).to.be.empty;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{GlobalUrlUsers}}/{{idDelete}}",
+									"host": [
+										"{{GlobalUrlUsers}}"
+									],
+									"path": [
+										"{{idDelete}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "POSTS",
+			"item": [
+				{
+					"name": "Criar posts",
+					"item": [
+						{
+							"name": "Criar usuario",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Função para gerar um nome aleatório\r",
+											"function getRandomName() {\r",
+											"    const names = [\"Alice\", \"Bob\", \"Carlos\", \"Diana\", \"Eve\", \"Frank\"];\r",
+											"    const surnames = [\"Silva\", \"Santos\", \"Oliveira\", \"Souza\", \"Pereira\"];\r",
+											"    return names[Math.floor(Math.random() * names.length)] + \" \" + surnames[Math.floor(Math.random() * names.length)];\r",
+											"}\r",
+											"\r",
+											"// Função para gerar um e-mail 100% único\r",
+											"function getUniqueEmail() {\r",
+											"    const domains = [\"gmail.com\", \"outlook.com\", \"yahoo.com\", \"hdd.com\"];\r",
+											"    const timestamp = Date.now(); // Adiciona o timestamp para evitar duplicatas\r",
+											"    return `user${timestamp}${Math.floor(Math.random() * 1000)}@${domains[Math.floor(Math.random() * domains.length)]}`;\r",
+											"}\r",
+											"\r",
+											"// Função para escolher aleatoriamente o gênero\r",
+											"function getRandomGender() {\r",
+											"    return Math.random() > 0.5 ? \"male\" : \"female\";\r",
+											"}\r",
+											"\r",
+											"// Definir os valores aleatórios\r",
+											"const randomName = getRandomName();\r",
+											"const uniqueEmail = getUniqueEmail();\r",
+											"const randomGender = getRandomGender();\r",
+											"const randomStatus = \"active\"; // Status fixo como \"active\"\r",
+											"\r",
+											"// **Salvar os valores nas variáveis da Collection**\r",
+											"pm.environment.set(\"random_name\", randomName);\r",
+											"pm.environment.set(\"random_email\", uniqueEmail);\r",
+											"pm.environment.set(\"random_gender\", randomGender);\r",
+											"pm.environment.set(\"random_status\", randomStatus);\r",
+											"pm.environment.set\r",
+											"\r",
+											"// **Exibir no console do Postman (opcional)**\r",
+											"console.log(\"Nome:\", randomName);\r",
+											"console.log(\"Email:\", uniqueEmail);\r",
+											"console.log(\"Gênero:\", randomGender);\r",
+											"console.log(\"Status:\", randomStatus);\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Converte a resposta para JSON\r",
+											"let response = pm.response.json();\r",
+											"\r",
+											"// Verifica se o ID existe na resposta antes de salvar\r",
+											"if (response.id) {\r",
+											"    pm.environment.set(\"idDelete\", response.id);\r",
+											"    pm.environment.set(\"idUpdate\", response.id);\r",
+											"    pm.environment.set(\"idUsuario\", response.id);\r",
+											"\r",
+											"    // Exibe no console para depuração\r",
+											"    console.log(\"ID capturado:\", response.id);\r",
+											"} else {\r",
+											"    console.log(\"ID não encontrado na resposta.\");\r",
+											"}\r",
+											"\r",
+											"// Verifica se a requisição foi bem-sucedida (código 201 - Created)\r",
+											"pm.test(\"Status Code é 201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"// Verifica se os campos esperados estão na resposta\r",
+											"pm.test(\"Resposta contém ID\", function () {\r",
+											"    pm.expect(response).to.have.property(\"id\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Nome está correto\", function () {\r",
+											"    pm.expect(response.name).to.eql(pm.environment.get(\"random_name\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"E-mail está correto\", function () {\r",
+											"    pm.expect(response.email).to.eql(pm.environment.get(\"random_email\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Gênero está correto\", function () {\r",
+											"    pm.expect(response.gender).to.eql(pm.environment.get(\"random_gender\"));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Status está correto\", function () {\r",
+											"    pm.expect(response.status).to.eql(pm.environment.get(\"random_status\"));\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer ACCESS-TOKEN"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{random_name}}\",\r\n    \"gender\": \"{{random_gender}}\",\r\n    \"email\": \"{{random_email}}\",\r\n    \"status\": \"{{random_status}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GlobalUrlUsers}}",
+									"host": [
+										"{{GlobalUrlUsers}}"
+									]
+								},
+								"description": "Generated from cURL: curl -i -H \"Accept:application/json\" -H \"Content-Type:application/json\" -H \"Authorization: Bearer ACCESS-TOKEN\" -XPOST \"https://gorest.co.in/public/v2/users\" -d '{\"name\":\"Tenali Ramakrishna\", \"gender\":\"male\", \"email\":\"tenali.ramakrishna@15ce.com\", \"status\":\"active\"}'"
+							},
+							"response": []
+						},
+						{
+							"name": "Cria posts",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Função para gerar um título aleatório\r",
+											"function getRandomTitle() {\r",
+											"    const titles = [\r",
+											"        \"Oportunidade única de aprendizado\",\r",
+											"        \"Explorando novas ideias e conceitos\",\r",
+											"        \"A importância da inovação na tecnologia\",\r",
+											"        \"Desafios e soluções para o futuro\",\r",
+											"        \"Reflexões sobre o conhecimento humano\",\r",
+											"        \"A beleza da simplicidade\",\r",
+											"        \"Transformando desafios em oportunidades\"\r",
+											"    ];\r",
+											"    return titles[Math.floor(Math.random() * titles.length)];\r",
+											"}\r",
+											"\r",
+											"// Função para gerar um corpo de comentário aleatório\r",
+											"function getRandomBody() {\r",
+											"    const bodies = [\r",
+											"        \"Este é um tema fascinante e abre diversas possibilidades de discussão.\",\r",
+											"        \"Sempre me pergunto como podemos melhorar nossas abordagens para resolver problemas complexos.\",\r",
+											"        \"Aprender algo novo todos os dias é essencial para o crescimento pessoal e profissional.\",\r",
+											"        \"Nunca subestime o impacto de pequenas mudanças no cotidiano.\",\r",
+											"        \"Reflexões como essa são fundamentais para aprimorar nosso pensamento crítico.\",\r",
+											"        \"Acredito que podemos explorar esse assunto de maneira ainda mais profunda.\",\r",
+											"        \"Cada ponto de vista traz novas perspectivas e nos ajuda a crescer.\"\r",
+											"    ];\r",
+											"    return bodies[Math.floor(Math.random() * bodies.length)];\r",
+											"}\r",
+											"\r",
+											"// Gerar um ID aleatório para o comentário\r",
+											"const randomPostId = Math.floor(Math.random() * 999999) + 100000;\r",
+											"\r",
+											"// Definir os valores aleatórios\r",
+											"const randomTitle = getRandomTitle();\r",
+											"const randomBody = getRandomBody();\r",
+											"\r",
+											"// Salvar os valores nas variáveis da Collection\r",
+											"pm.environment.set(\"random_post_id\", randomPostId);\r",
+											"pm.environment.set(\"random_title\", randomTitle);\r",
+											"pm.environment.set(\"random_body\", randomBody);\r",
+											"\r",
+											"// Exibir os valores gerados no console para depuração\r",
+											"console.log(\"Valores gerados para o comentário:\", {\r",
+											"    id: randomPostId,\r",
+											"    user_id: pm.environment.get(\"idUsuario\"),\r",
+											"    title: randomTitle,\r",
+											"    body: randomBody\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"let response = pm.response.json();\r",
+											"\r",
+											"// Verifica se o ID existe na resposta antes de salvar\r",
+											"if (response.id) {\r",
+											"    pm.environment.set(\"idPost\", response.id);\r",
+											"    // Exibe no console para depuração\r",
+											"    console.log(\"ID capturado:\", response.id);\r",
+											"} else {\r",
+											"    console.log(\"ID não encontrado na resposta.\");\r",
+											"}\r",
+											"\r",
+											"\r",
+											"\r",
+											"\r",
+											"pm.test(\"Verifica se o ID do comentário é o esperado\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    // Convertendo o ID do comentário para número antes da comparação\r",
+											"    pm.expect(Number(requestBody.id)).to.eql(Number(pm.environment.get(\"random_post_id\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se o ID do usuário é o esperado\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    // Convertendo o ID do usuário para número antes da comparação\r",
+											"    pm.expect(Number(requestBody.user_id)).to.eql(Number(pm.environment.get(\"idUsuario\")));\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se o título é gerado corretamente\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    pm.expect(requestBody.title).to.be.a('string').that.is.not.empty;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se o corpo do comentário é gerado corretamente\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    pm.expect(requestBody.body).to.be.a('string').that.is.not.empty;\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{random_post_id}}\",\r\n    \"user_id\": \"{{idUsuario}}\",\r\n    \"title\": \"{{random_title}}\",\r\n    \"body\": \"{{random_body}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GlobalUrlPost}}",
+									"host": [
+										"{{GlobalUrlPost}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Buscar posts",
+					"item": [
+						{
+							"name": "Busca posts",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verifica se a resposta é bem-sucedida\", function () {\r",
+											"    pm.response.to.have.status(200); // Verifica se o status da resposta é 200\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se a resposta é um array\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response).to.be.an(\"array\"); // Verifica se a resposta é um array\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se há pelo menos um post na lista\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response.length).to.be.greaterThan(0); // Verifica se há pelo menos um post\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se cada post tem as propriedades esperadas\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    response.forEach(post => {\r",
+											"        pm.expect(post).to.have.all.keys(\"id\", \"user_id\", \"title\", \"body\"); // Verifica se cada post possui as chaves esperadas\r",
+											"    });\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{GlobalUrlPost}}",
+									"host": [
+										"{{GlobalUrlPost}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Busca posts especifico",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verifica se a resposta é bem-sucedida\", function () {\r",
+											"    pm.response.to.have.status(200); // Verifica se o status da resposta é 200\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se o post foi encontrado\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response).to.be.an(\"object\"); // Verifica se a resposta é um objeto\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se o post tem as propriedades esperadas\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response).to.have.all.keys(\"id\", \"user_id\", \"title\", \"body\"); // Verifica se o post possui as chaves esperadas\r",
+											"});\r",
+											"\r",
+											"// Verifica se o ID do post retornado corresponde ao ID solicitado\r",
+											"const postId = pm.environment.get(\"idPost\"); // Obtendo o ID do post a partir da variável de ambiente\r",
+											"pm.test(\"Verifica se o ID do post retornado é o esperado\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response.id).to.eql(Number(postId)); // Compara o ID retornado com o ID solicitado\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{GlobalUrlPost}}/{{idPost}}",
+									"host": [
+										"{{GlobalUrlPost}}"
+									],
+									"path": [
+										"{{idPost}}"
+									],
+									"query": [
+										{
+											"key": "random_post_id",
+											"value": "{{random_post_id}}",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Excluir posts",
+					"item": [
+						{
+							"name": "Exclui post",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status Code é 204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											"\r",
+											"// Testa se o corpo da resposta está vazio (conforme esperado para DELETE)\r",
+											"pm.test(\"Resposta está vazia\", function () {\r",
+											"    pm.expect(pm.response.text()).to.be.empty;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{GlobalUrlPost}}/{{idPost}}",
+									"host": [
+										"{{GlobalUrlPost}}"
+									],
+									"path": [
+										"{{idPost}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "COMENTARIOS",
+			"item": [
+				{
+					"name": "Criar comentario",
+					"item": [
+						{
+							"name": "Cria comentario",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Função para gerar um ID aleatório para o comentário\r",
+											"const randomCommentId = Math.floor(Math.random() * 999999) + 100000; // ID aleatório\r",
+											"pm.environment.set(\"random_comment_id\", randomCommentId);\r",
+											"\r",
+											"// Função para gerar um ID aleatório para o post (substitua isso pela lógica que obtém um post existente)\r",
+											"const randomPostId = 188845; // Use um ID de post existente ou uma lógica para obter um\r",
+											"pm.environment.set(\"random_post_id\", randomPostId);\r",
+											"\r",
+											"// Função para gerar um nome aleatório\r",
+											"function getRandomName() {\r",
+											"    const names = [\"Prema Namboothiri\", \"Lucas Silva\", \"Mariana Costa\", \"Fernando Almeida\"];\r",
+											"    return names[Math.floor(Math.random() * names.length)];\r",
+											"}\r",
+											"const randomName = getRandomName();\r",
+											"pm.environment.set(\"random_name\", randomName);\r",
+											"\r",
+											"// Função para gerar um e-mail aleatório\r",
+											"function getRandomEmail() {\r",
+											"    return `user${Math.floor(Math.random() * 1000000)}@example.com`; // Substitua por um domínio válido\r",
+											"}\r",
+											"\r",
+											"const randomEmail = getRandomEmail();\r",
+											"pm.environment.set(\"random_email\", randomEmail);\r",
+											"\r",
+											"// Função para gerar um corpo de comentário aleatório\r",
+											"function getRandomBody() {\r",
+											"    const bodies = [\r",
+											"        \"At nesciunt earum. Quidem quia vel.\",\r",
+											"        \"Este é um tema fascinante e abre diversas possibilidades de discussão.\",\r",
+											"        \"Reflexões como essa são fundamentais para aprimorar nosso pensamento crítico.\"\r",
+											"    ];\r",
+											"    return bodies[Math.floor(Math.random() * bodies.length)];\r",
+											"}\r",
+											"const randomBody = getRandomBody();\r",
+											"pm.environment.set(\"random_body\", randomBody);\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Teste para verificar se o ID do comentário é gerado corretamente\r",
+											"pm.test(\"Verifica se o ID do comentário é gerado corretamente\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    pm.expect(Number(requestBody.id)).to.eql(Number(pm.environment.get(\"random_comment_id\")));\r",
+											"});\r",
+											"\r",
+											"// Teste para verificar se o ID do post é o esperado\r",
+											"pm.test(\"Verifica se o ID do post é o esperado\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    pm.expect(Number(requestBody.post_id)).to.eql(Number(pm.environment.get(\"random_post_id\")));\r",
+											"});\r",
+											"\r",
+											"// Teste para verificar se o nome é gerado corretamente\r",
+											"pm.test(\"Verifica se o nome é gerado corretamente\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    pm.expect(requestBody.name).to.be.a('string').that.is.not.empty;\r",
+											"});\r",
+											"\r",
+											"// Teste para verificar se o e-mail é gerado corretamente\r",
+											"pm.test(\"Verifica se o e-mail é gerado corretamente\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    pm.expect(requestBody.email).to.be.a('string').that.includes('@');\r",
+											"});\r",
+											"\r",
+											"// Teste para verificar se o corpo do comentário é gerado corretamente\r",
+											"pm.test(\"Verifica se o corpo do comentário é gerado corretamente\", function () {\r",
+											"    const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+											"    pm.expect(requestBody.body).to.be.a('string').that.is.not.empty;\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": \"{{random_comment_id}}\",\r\n    \"post_id\": \"{{random_post_id}}\",\r\n    \"name\": \"{{random_name}}\",\r\n    \"email\": \"{{random_email}}\",\r\n    \"body\": \"{{random_body}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{GlobalUrlComentario}}",
+									"host": [
+										"{{GlobalUrlComentario}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Buscar comentario",
+					"item": [
+						{
+							"name": "Busca  comentario",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verifica se a resposta é bem-sucedida\", function () {\r",
+											"    pm.response.to.have.status(200); // Verifica se o status da resposta é 200\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se a resposta é um array\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response).to.be.an(\"array\"); // Verifica se a resposta é um array\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se há pelo menos um post na lista\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response.length).to.be.greaterThan(0); // Verifica se há pelo menos um post\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se cada post tem as propriedades esperadas\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    response.forEach(post => {\r",
+											"        pm.expect(post).to.have.all.keys(\"id\", \"post_id\", \"name\", \"email\",\"body\"); // Verifica se cada post possui as chaves esperadas\r",
+											"    });\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{GlobalUrlComentario}}",
+									"host": [
+										"{{GlobalUrlComentario}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Busca  comentario especifico",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Verifica se a resposta é bem-sucedida\", function () {\r",
+											"    pm.response.to.have.status(200); // Verifica se o status da resposta é 200\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se o comentario foi encontrado\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response).to.be.an(\"object\"); // Verifica se a resposta é um objeto\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Verifica se o post tem as propriedades esperadas\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response).to.have.all.keys(\"id\", \"post_id\", \"name\", \"email\",\"body\"); // Verifica se o post possui as chaves esperadas\r",
+											"});\r",
+											"\r",
+											"// Verifica se o ID do post retornado corresponde ao ID solicitado\r",
+											"const postId = pm.environment.get(\"idComentario\"); // Obtendo o ID do post a partir da variável de ambiente\r",
+											"pm.test(\"Verifica se o ID do comentario retornado é o esperado\", function () {\r",
+											"    const response = pm.response.json();\r",
+											"    pm.expect(response.id).to.eql(Number(postId)); // Compara o ID retornado com o ID solicitado\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{GlobalUrlComentario}}/{{idComentario}}",
+									"host": [
+										"{{GlobalUrlComentario}}"
+									],
+									"path": [
+										"{{idComentario}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Excluir comentario",
+					"item": [
+						{
+							"name": "Exclui comentario",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status Code é 204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											"\r",
+											"// Testa se o corpo da resposta está vazio (conforme esperado para DELETE)\r",
+											"pm.test(\"Resposta está vazia\", function () {\r",
+											"    pm.expect(pm.response.text()).to.be.empty;\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{GlobalUrlComentario}}/{{idComentario}}",
+									"host": [
+										"{{GlobalUrlComentario}}"
+									],
+									"path": [
+										"{{idComentario}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{acess_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "GlobalUrlUsers",
+			"value": "https://gorest.co.in/public/v2/users",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "idDelete",
+			"value": "223",
+			"type": "string"
+		},
+		{
+			"key": "idUsuario",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "idUpdate",
+			"value": "445",
+			"type": "string"
+		},
+		{
+			"key": "GlobalUrlPost",
+			"value": "https://gorest.co.in/public/v2/posts",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "idPost",
+			"value": "546",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "GlobalUrlComentario",
+			"value": "https://gorest.co.in/public/v2/comments",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "idComentarios",
+			"value": "575",
+			"type": "string"
+		},
+		{
+			"key": "randomName",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "randomEmail",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "randomGender",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "randomStatus",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "random_name",
+			"value": ""
+		},
+		{
+			"key": "random_email",
+			"value": ""
+		},
+		{
+			"key": "random_gender",
+			"value": ""
+		},
+		{
+			"key": "random_status",
+			"value": ""
+		},
+		{
+			"key": "random_comment_id",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "random_title",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "random_body",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "random_comment_id",
+			"value": ""
+		},
+		{
+			"key": "random_title",
+			"value": ""
+		},
+		{
+			"key": "random_body",
+			"value": ""
+		}
+	]
+}
