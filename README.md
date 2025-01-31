@@ -1,3 +1,5 @@
+Git Clone a  partir da Master
+
 # Testes-Postman-Api-GORest
 Este conjunto de testes foi desenvolvido para validar a funcionalidade de uma API que gerencia usuários, posts e comentários. Os testes estão organizados de maneira a garantir que todas as requisições sejam executadas na ordem correta, evitando falhas devido a dependências entre os endpoints.
 
